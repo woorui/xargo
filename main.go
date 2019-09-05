@@ -83,17 +83,17 @@ func execGroupCmd(wg *sync.WaitGroup, cmdsGroup []CmdWithArgs) {
 }
 
 func main() {
-	// Check if stdin is from a terminal
-	stat, _ := os.Stdin.Stat()
-	if (stat.Mode() & os.ModeCharDevice) != 0 {
-		os.Exit(1)
-	}
-
 	// Parse flag
 	maxArgs := flag.Int("n", 1, "max-args, default 0, It mean no limit")
 	maxProcs := flag.Int("P", 1, "max-procs, default 0, It mean no limit")
 	bin := flag.String("bin", "echo", "command to exec, default echo")
 	flag.Parse()
+
+	// Check if stdin is from a terminal
+	stat, _ := os.Stdin.Stat()
+	if (stat.Mode() & os.ModeCharDevice) != 0 {
+		os.Exit(1)
+	}
 
 	argsCh := make(chan []string)
 
