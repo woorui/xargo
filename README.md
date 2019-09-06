@@ -44,5 +44,5 @@ $ echo {1..10} | go run main.go -P 3 -n 2
 ### Bug:
 
 ```bash 
-1. It always echo an empty
+1. It always echo an empty line
 ```
