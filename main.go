@@ -30,18 +30,16 @@ func readArgs(maxArgs int, argsCh chan []string) {
 			break
 		}
 
-		func() {
-			if !isDeLimited(b) {
-				arg = arg + string(b)
-			} else {
-				args = append(args, string(arg))
-				arg = ""
-				if len(args) == maxArgs {
-					argsCh <- args
-					args = []string{}
-				}
+		if !isDeLimited(b) {
+			arg = arg + string(b)
+		} else {
+			args = append(args, string(arg))
+			arg = ""
+			if len(args) == maxArgs {
+				argsCh <- args
+				args = []string{}
 			}
-		}()
+		}
 	}
 	close(argsCh)
 }
