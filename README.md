@@ -3,19 +3,19 @@
 A simple implement of xargs, written in golang
 
 ### Note.
-> There need to specify command like passing '-bin ls' or '-bin echo'. diff from 'xargs'
+> There needs to specify command like passing '-bin ls' or '-bin echo'. This's different from 'xargs'
 
 ### Example:
 
 ```bash
 $ go run main.go -h
-Usage of C:\Users\wurui\AppData\Local\Temp\go-build714031134\b001\exe\main.exe:
+Usage of /var/folders/y3/q1jmb_7s3jsfjh0t0y5xnd0c0000gn/T/go-build080969720/b001/exe/main:
   -P int
-        max-procs, default 0, It mean no limit (default 1)
+        max-procs, default 1 (default 1)
   -bin string
         command to exec, default echo (default "echo")
   -n int
-        max-args, default 0, It mean no limit (default 1)
+        max-args, default 1  (default 1)
 exit status 2
 ```
 
@@ -27,22 +27,8 @@ $ echo {1..10} | go run main.go -P 3 -n 3
 10
 ```
 
-```bash
-$ echo {1..10} | go run main.go -P 3 -n 2
-9 10
-3 4
-1 2
-5 67 8
-```
-
 ### Time consuming:
 
 ```
 2~3h
-```
-
-### Bug:
-
-```bash 
-1. It always echo an empty line
 ```

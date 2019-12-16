@@ -78,8 +78,8 @@ func execCmd(cmdsCh chan CmdWithArgs) {
 
 func main() {
 	// Parse flag
-	maxArgs := flag.Int("n", 1, "max-args, default 0, It mean no limit")
-	maxProcs := flag.Int("P", 1, "max-procs, default 0, It mean no limit")
+	maxArgs := flag.Int("n", 1, "max-args, default 1 ")
+	maxProcs := flag.Int("P", 1, "max-procs, default 1")
 	bin := flag.String("bin", "echo", "command to exec, default echo")
 	flag.Parse()
 
