@@ -19,40 +19,44 @@ func isDeLimited(b byte) bool {
 	return b == 10 || b == 32 || b == 9
 }
 
-func readArgs(maxArgs int) (argsCh chan []string) {
-	defer close(argsCh)
-	reader := bufio.NewReader(os.Stdin)
-	var args []string
-	arg := ""
-	for {
-		b, err := reader.ReadByte()
-		if err == io.EOF {
-			argsCh <- args
-			break
-		}
+func readArgs(maxArgs int) chan []string {
+	argsCh := make(chan []string)
 
-		if !isDeLimited(b) {
-			arg = arg + string(b)
-		} else {
-			args = append(args, string(arg))
-			arg = ""
-			if len(args) == maxArgs {
+	go func() {
+		reader := bufio.NewReader(os.Stdin)
+		var args []string
+		arg := ""
+		for {
+			b, err := reader.ReadByte()
+			if err == io.EOF {
 				argsCh <- args
-				args = []string{}
+				break
+			}
+
+			if !isDeLimited(b) {
+				arg = arg + string(b)
+			} else {
+				args = append(args, string(arg))
+				arg = ""
+				if len(args) == maxArgs {
+					argsCh <- args
+					args = []string{}
+				}
 			}
 		}
-	}
+		close(argsCh)
+	}()
 	return argsCh
 }
 
 func buildCmd(bin string, maxProcs int, argsCh chan []string) chan CmdWithArgs {
 	cmdsCh := make(chan CmdWithArgs, maxProcs)
-	defer close(cmdsCh)
 	go func() {
 		for args := range argsCh {
 			cwa := CmdWithArgs{name: bin, args: args}
 			cmdsCh <- cwa
 		}
+		close(cmdsCh)
 	}()
 	return cmdsCh
 }
@@ -93,4 +97,5 @@ func main() {
 
 	// execute the command Grouped
 	execCmd(cmdsCh)
+
 }
