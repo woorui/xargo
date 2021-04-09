@@ -26,9 +26,3 @@ $ echo {1..10} | go run main.go -P 3 -n 3
 1 2 3
 10
 ```
-
-### Time consuming:
-
-```
-2~3h
-```
