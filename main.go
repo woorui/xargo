@@ -3,99 +3,74 @@ package main
 import (
 	"bufio"
 	"flag"
-	"io"
 	"os"
 	"os/exec"
 	"sync"
 )
 
-// CmdWithArgs contain cmd name and args
-type CmdWithArgs struct {
-	name string
-	args []string
-}
+var (
+	maxprocs int
+	number   int
+	command  string
+)
 
-func isDeLimited(b byte) bool {
-	return b == 10 || b == 32 || b == 9
-}
-
-func readArgs(maxArgs int) chan []string {
-	argsCh := make(chan []string)
-
-	go func() {
-		reader := bufio.NewReader(os.Stdin)
-		var args []string
-		arg := ""
-		for {
-			b, err := reader.ReadByte()
-			if err == io.EOF {
-				argsCh <- args
-				break
-			}
-
-			if !isDeLimited(b) {
-				arg = arg + string(b)
-			} else {
-				args = append(args, string(arg))
-				arg = ""
-				if len(args) == maxArgs {
-					argsCh <- args
-					args = []string{}
-				}
-			}
-		}
-		close(argsCh)
-	}()
-	return argsCh
-}
-
-func buildCmd(bin string, maxProcs int, argsCh chan []string) chan CmdWithArgs {
-	cmdsCh := make(chan CmdWithArgs, maxProcs)
-	go func() {
-		for args := range argsCh {
-			cwa := CmdWithArgs{name: bin, args: args}
-			cmdsCh <- cwa
-		}
-		close(cmdsCh)
-	}()
-	return cmdsCh
-}
-
-func execCmd(cmdsCh chan CmdWithArgs) {
-	var wg sync.WaitGroup
-	for c := range cmdsCh {
-		wg.Add(1)
-		go func(c CmdWithArgs) {
-			cmd := exec.Command(c.name, c.args...)
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			cmd.Run()
-			wg.Done()
-		}(c)
-	}
-	wg.Wait()
+func init() {
+	flag.IntVar(&maxprocs, "n", 1, "maxprocs")
+	flag.IntVar(&number, "P", 1, "number")
+	flag.StringVar(&command, "C", "echo", "command to exec")
 }
 
 func main() {
-	// Parse flag
-	maxArgs := flag.Int("n", 1, "max-args, default 1 ")
-	maxProcs := flag.Int("P", 1, "max-procs, default 1")
-	bin := flag.String("bin", "echo", "command to exec, default echo")
 	flag.Parse()
 
-	// Check if stdin is from a terminal
 	stat, _ := os.Stdin.Stat()
 	if (stat.Mode() & os.ModeCharDevice) != 0 {
 		os.Exit(1)
 	}
 
-	// Read From stdin
-	argsCh := readArgs(*maxArgs)
+	s := bufio.NewScanner(os.Stdin)
+	s.Split(bufio.ScanWords)
 
-	// Build name and args used by command
-	cmdsCh := buildCmd(*bin, *maxProcs, argsCh)
+	cmderch := make(chan *cmder, maxprocs)
 
-	// execute the command Grouped
-	execCmd(cmdsCh)
+	go func() {
+		var args []string
+		for s.Scan() {
+			args = append(args, s.Text())
+			if len(args) >= number {
+				cmderch <- cmd(command, args...)
+				args = []string{}
+			}
+		}
+		if len(args) > 0 {
+			cmderch <- cmd(command, args...)
+		}
 
+		close(cmderch)
+	}()
+
+	var wg sync.WaitGroup
+	for c := range cmderch {
+		wg.Add(1)
+		go func(c *cmder) {
+			defer wg.Done()
+			c.exec()
+		}(c)
+	}
+
+	wg.Wait()
+}
+
+type cmder struct {
+	command string
+	args    []string
+}
+
+func cmd(command string, args ...string) *cmder { return &cmder{command: command, args: args} }
+
+func (c *cmder) exec() {
+	ec := exec.Command(c.command, c.args...)
+	ec.Stderr = os.Stderr
+	ec.Stdout = os.Stdout
+	ec.Run()
 }
