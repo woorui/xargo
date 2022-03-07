@@ -1,22 +1,17 @@
-# go-xargs
+# xargo
 
-A simple implement of xargs, written in golang
+A simple implement of xargs, written in golang, Just for fun.
 
-### Note.
-> There needs to specify command like passing '-bin ls' or '-bin echo'. This's different from 'xargs'
-
-### Example:
+### Usage:
 
 ```bash
 $ go run main.go -h
-Usage of /var/folders/y3/q1jmb_7s3jsfjh0t0y5xnd0c0000gn/T/go-build080969720/b001/exe/main:
+  -C string
+        command to exec (default "echo")
   -P int
-        max-procs, default 1 (default 1)
-  -bin string
-        command to exec, default echo (default "echo")
+        maxprocs (default 3)
   -n int
-        max-args, default 1  (default 1)
-exit status 2
+        number (default 3)
 ```
 
 ```bash
