@@ -2,7 +2,7 @@
 
 A simple implement of xargs, written in golang, Just for fun.
 
-### Usage:
+### Usage
 
 ```bash
 $ go run main.go -h
@@ -13,6 +13,8 @@ $ go run main.go -h
   -n int
         number (default 3)
 ```
+
+### Example
 
 ```bash
 $ echo {1..10} | go run main.go -P 3 -n 3
