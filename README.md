@@ -1,5 +1,7 @@
 # xargo
 
+[![Go](https://github.com/woorui/xargo/actions/workflows/go.yml/badge.svg)](https://github.com/woorui/xargo/actions/workflows/go.yml)
+
 A simple implement of xargs, written in golang, Just for fun.
 
 ### Usage
