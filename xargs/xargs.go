@@ -16,7 +16,6 @@ type BuildCmd func(command string, args ...string) Cmder
 type Xargs struct {
 	ctx      context.Context
 	cancel   context.CancelFunc
-	maxprocs int
 	number   int
 	command  string
 	errch    chan error
@@ -82,11 +81,20 @@ func (a *Xargs) work(g []string) {
 				a.worker <- struct{}{}
 				a.wg.Done()
 			}()
+			if len(a.errch) > 0 {
+				return
+			}
 			if err := a.buildCmd(a.command, g...).Exec(); err != nil {
-				a.errch <- err
+				if len(a.errch) == 0 {
+					a.errch <- err
+				}
 				return
 			}
 		case <-a.ctx.Done():
+			defer a.wg.Done()
+			if len(a.errch) > 0 {
+				return
+			}
 			a.errch <- a.ctx.Err()
 			return
 		}
