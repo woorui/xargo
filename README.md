@@ -5,10 +5,17 @@
 
 A simple implement of xargs, written in golang, Just for fun.
 
+### Install
+
+```bash
+go get -u github.com/woorui/xargo
+```
+
 ### Usage
 
 ```bash
-$ go run main.go -h
+$ xargo -h
+Usage of xargo:
   -C string
         command to exec (default "echo")
   -P int
@@ -20,7 +27,7 @@ $ go run main.go -h
 ### Example
 
 ```bash
-$ echo {1..10} | go run main.go -P 3 -n 3
+$ echo {1..10} | xargo -P 3 -n 3
 7 8 9
 4 5 6
 1 2 3
