@@ -85,9 +85,7 @@ func (a *Xargs) work(g []string) {
 				return
 			}
 			if err := a.buildCmd(a.command, g...).Exec(); err != nil {
-				if len(a.errch) == 0 {
-					a.errch <- err
-				}
+				a.errch <- err
 				return
 			}
 		case <-a.ctx.Done():
