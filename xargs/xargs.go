@@ -86,7 +86,6 @@ func (a *Xargs) work(g []string) {
 			}
 			if err := a.buildCmd(a.command, g...).Exec(); err != nil {
 				a.errch <- err
-				return
 			}
 		case <-a.ctx.Done():
 			defer a.wg.Done()
@@ -94,7 +93,6 @@ func (a *Xargs) work(g []string) {
 				return
 			}
 			a.errch <- a.ctx.Err()
-			return
 		}
 	}()
 }

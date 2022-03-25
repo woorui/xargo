@@ -94,3 +94,20 @@ func Test_Cancel_Xargs(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func Test_Cancel_After_Error_Xargs(t *testing.T) {
+	ctx := context.Background()
+
+	reader := strings.NewReader("aa bb cc dd cc")
+
+	xargs := New(ctx, buildErrCmd, "echo", 1, 1)
+	err := xargs.Execute(reader)
+	time.Sleep(time.Second)
+	xargs.Cancel()
+	if err == nil {
+		t.Fail()
+	}
+	if err == context.Canceled {
+		t.Fail()
+	}
+}
